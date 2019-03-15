@@ -315,7 +315,7 @@ while(True):
                 Tokens.insert(i,[symbol,IndentifyTokens(symbol),line]) #add the splitting symbol
                 if(m[1]!=''):
                     Tokens.insert(i+1,[m[1],"Identifier",line]) #add new token to the mix
-            elif(len(m[1])>0 and (str(x[1]).isdigit())==True):
+            elif((str(x[1]).isdigit())==True): #'''''''''fix this line'''''''''
                 if(len(m[1])>0 and (str(Tokens[i][0][x[2]]).isdigit())==False):
                     symbol=Tokens[i][0][x[2]]
                     line=Tokens[i][2]
@@ -336,7 +336,7 @@ while(True):
                     Tokens.insert(i+1,[m[1],"Identifier",line]) #add new token to the mix
         elif x[0]==False and str(x[1]).isdigit():
             m=Tokens[i][0].split(Tokens[i][0][x[2]],1)
-            if(len(m[1])>0 and (str(Tokens[i][0][x[2]]).isdigit())==False):
+            if((str(Tokens[i][0][x[2]]).isdigit())==False):
                     symbol=Tokens[i][0][x[2]]
                     line=Tokens[i][2]
                     del Tokens[i] #delete the old token
