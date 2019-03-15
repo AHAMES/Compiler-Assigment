@@ -11,7 +11,7 @@ import re
 def identifiers(inputString):
     newToken=""
     splitPoint=0
-    if str(inputString[0][0]).isalpha() and inputString[1]=='':
+    if str(inputString[0][0]).isalpha() and (inputString[1]=='' or inputString[1]=='Identifier'):
         for i in range(0,len(inputString[0])):
             if str(inputString[0][i]).isalpha() or str(inputString[0][i]).isdigit() or inputString[0][i]=='_':
                 newToken+=inputString[0][i]
@@ -19,6 +19,13 @@ def identifiers(inputString):
                 splitPoint=i
                 return [True,newToken,splitPoint]
         return [True,newToken,splitPoint]
+    elif str(inputString[0][0]).isdigit() and str(inputString[1])!='integer':
+        for i in range(0,len(inputString[0])):
+            if str(inputString[0][i]).isdigit():
+                newToken+=inputString[0][i]
+            else:
+                splitPoint=i
+                return[False,newToken,splitPoint]
     else:
         return [False,"",0]       
 
@@ -73,6 +80,7 @@ def reservedWord(inputString):
     vod='void'
     stat='static'
     man='main'
+    nw='new'
     j=0
     m=True
     if(len(inputString)==len(clas)):
@@ -183,6 +191,16 @@ def reservedWord(inputString):
             j+=1
         if m==True:
             return m
+    if(len(inputString)==len(nw)):
+        j=0
+        m=True
+        for i in inputString:
+            if nw[j]!=i:
+                m=False
+                break
+            j+=1
+        if m==True:
+            return m
     return False
 
 def dataType(inputString):
@@ -220,14 +238,14 @@ def dataType(inputString):
     return False   
     
 def IndentifyTokens(inputString):
-    if dataType(inputString)==True:
+    if symbols(inputString)==True:
+        return "symbol"
+    elif dataType(inputString)==True:
         return "Type"
     elif reservedWord(inputString)==True:
         return "reserved_word"
     elif binaryOperation(inputString)==True:
         return "OP"
-    elif symbols(inputString)==True:
-        return "symbol"
     elif integerLiteral(inputString)==True:
         return "integer"
     else:
@@ -282,24 +300,67 @@ def Tokenization(code):
 
 
 Tokens=Tokenization(code)
+size=len(Tokens)
 
-for i in range(0,len(Tokens)):
-    x=identifiers([Tokens[i][0],Tokens[i][1]]) 
-    if x[0]==False and Tokens[i][1]=="":
-        Tokens[i][1]='Invalid'
-    else:
-        if x[2]==0 and Tokens[i][1]=="":
-            Tokens[i][1]='Identifier'
-        elif x[2]!=0 and Tokens[i][1]=="":
-            m=Tokens[i][0].split(Tokens[i][0][x[2]],1) #take the splited part
-            symbol=Tokens[i][0][x[2]]
-            line=Tokens[i][2]
-            del Tokens[i] #delete the old token
-            Tokens.insert(i,[x[1],"Identifier",line]) #add new token to the mix
-            Tokens.insert(i+1,[symbol,IndentifyTokens(symbol),line]) #add the splitting symbol
-            if(m[1]!=''):
-                Tokens.insert(i+2,[m[1],IndentifyTokens(m[1]),line])
+while(True):
+    for i in range(0,len(Tokens)):
+        x=identifiers([Tokens[i][0],Tokens[i][1]]) 
+        if x[0]==False and (Tokens[i][1]==""):
+            Tokens[i][1]='Invalid'
+            m=Tokens[i][0].split(Tokens[i][0][x[2]],1)
+            if(len(m[1])>0 and (str(x[1]).isdigit())==False):
+                symbol=Tokens[i][0][x[2]]
+                line=Tokens[i][2]
+                del Tokens[i] #delete the old token
+                Tokens.insert(i,[symbol,IndentifyTokens(symbol),line]) #add the splitting symbol
+                if(m[1]!=''):
+                    Tokens.insert(i+1,[m[1],"Identifier",line]) #add new token to the mix
+            elif(len(m[1])>0 and (str(x[1]).isdigit())==True):
+                if(len(m[1])>0 and (str(Tokens[i][0][x[2]]).isdigit())==False):
+                    symbol=Tokens[i][0][x[2]]
+                    line=Tokens[i][2]
+                    del Tokens[i] #delete the old token
+                    Tokens.insert(i,[x[1],"integer",line]) #add new token to the mix
+                    Tokens.insert(i+1,[symbol,'symbol',line]) #add the splitting symbol
+                    if(m[1]!=''):
+                        Tokens.insert(i+2,[m[1],IndentifyTokens(m[1]),line])
+                    
+        elif x[0]==False and (Tokens[i][1]=="Identifier"):
+            if IndentifyTokens(Tokens[i][0][0])=="symbol":
+                m=Tokens[i][0].split(Tokens[i][0][x[2]],1)
+                if(len(m[1])>0 and ~(str(Tokens[i][0][x[2]]).isdigit())):
+                    symbol=Tokens[i][0][x[2]]
+                    line=Tokens[i][2]
+                    del Tokens[i] #delete the old token
+                    Tokens.insert(i,[symbol,'symbol',line]) #add the splitting symbol
+                    Tokens.insert(i+1,[m[1],"Identifier",line]) #add new token to the mix
+        elif x[0]==False and str(x[1]).isdigit():
+            m=Tokens[i][0].split(Tokens[i][0][x[2]],1)
+            if(len(m[1])>0 and (str(Tokens[i][0][x[2]]).isdigit())==False):
+                    symbol=Tokens[i][0][x[2]]
+                    line=Tokens[i][2]
+                    del Tokens[i] #delete the old token
+                    Tokens.insert(i,[x[1],"integer",line]) #add new token to the mix
+                    Tokens.insert(i+1,[symbol,'symbol',line]) #add the splitting symbol
+                    if(m[1]!=''):
+                        Tokens.insert(i+2,[m[1],IndentifyTokens(m[1]),line])
         else:
-            continue
+            if x[2]==0 and Tokens[i][1]=="":
+                Tokens[i][1]='Identifier'
+            elif x[2]!=0 and (Tokens[i][1]=="" or Tokens[i][1]=="Identifier") :
+                m=Tokens[i][0].split(Tokens[i][0][x[2]],1) #take the splited part
+                symbol=Tokens[i][0][x[2]]
+                line=Tokens[i][2]
+                del Tokens[i] #delete the old token
+                Tokens.insert(i,[x[1],"Identifier",line]) #add new token to the mix
+                Tokens.insert(i+1,[symbol,IndentifyTokens(symbol),line]) #add the splitting symbol
+                if(m[1]!=''):
+                    Tokens.insert(i+2,[m[1],IndentifyTokens(m[1]),line])
+            else:
+                continue
+    if(size!=len(Tokens)):
+        size=len(Tokens)
+    else:
+        break
 #for token in Tokens:
     
