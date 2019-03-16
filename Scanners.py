@@ -4,10 +4,18 @@ Created on Wed Mar 13 12:41:25 2019
 
 @author: Ahmed
 """
-
-code = open("Code.txt", "r")
 import re
 
+reservedTokens={
+        ';':'symbol','.':'symbol','[':'symbol',']':'symbol','(':'symbol',')':'symbol',
+        '{':'symbol','}':'symbol','=':'OP','*':'OP','-':'OP','+':'OP','<':'OP','>':'OP',
+        '&&':'OP', '==':'OP','int':'Type','String':'Type','boolean':'Type','class':'reserved_word',
+        'if':'reserved_word','else':'reserved_word','public':'reserved_word','private':'reserved_word',
+        'protected':'reserved_word','return':'reserved_word','void':'reserved_word','main':'reserved_word',
+        'static':'reserved_word', 'new':'reserved_word','System.out.println':'reserved_word',
+        'while':'reserved_word','extends':'reserved_word','this':'reserved_word', 'false':'reserved_word',
+        'true':'reserved_word'
+}
 def identifiers(inputString):
     newToken=""
     splitPoint=0
@@ -17,239 +25,35 @@ def identifiers(inputString):
                 newToken+=inputString[0][i]
             else:
                 splitPoint=i
-                return [True,newToken,splitPoint]
-        return [True,newToken,splitPoint]
+                return ["Identifier",newToken,splitPoint]
+        return ["Identifier",newToken,splitPoint]
     elif str(inputString[0][0]).isdigit() and str(inputString[1])!='integer':
         for i in range(0,len(inputString[0])):
             if str(inputString[0][i]).isdigit():
                 newToken+=inputString[0][i]
+            elif str(inputString[0][i]).isalpha():
+                newToken="Invalid" 
             else:
                 splitPoint=i
-                return[False,newToken,splitPoint]
+                return["Invalid",newToken,splitPoint]
     else:
         return [False,"",0]       
 
-def integerLiteral(inputString):
-    if inputString.isdigit():
-        return True
-    return False 
-def binaryOperation(inputString):
-    if inputString=='=':
-        return True
-    if inputString=='*':
-        return True
-    if inputString=='-':
-        return True
-    if inputString=='+':
-        return True
-    if inputString=='<':
-        return True
-    if inputString=='>':
-        return True
-    if inputString=='&&':
-        return True
-    return False
 
-def symbols(inputString):
-    if inputString==';':
-        return True
-    if inputString=='.':
-        return True
-    if inputString=='[':
-        return True
-    if inputString==']':
-        return True
-    if inputString=='(':
-        return True
-    if inputString==')':
-        return True
-    if inputString=='{':
-        return True
-    if inputString=='}':
-        return True
-    return False    
-
-def reservedWord(inputString):
-    clas='class'
-    iff='if'
-    lse='else'
-    pub='public'
-    pri='private'
-    prot='protected'
-    ret='return'
-    vod='void'
-    stat='static'
-    man='main'
-    nw='new'
-    j=0
-    m=True
-    if(len(inputString)==len(clas)):
-        for i in inputString:
-            if clas[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    if(len(inputString)==len(iff)):
-        j=0
-        m=True
-        for i in inputString:
-            if iff[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    if(len(inputString)==len(lse)):
-        j=0
-        m=True
-        for i in inputString:
-            if lse[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m 
-    if(len(inputString)==len(pub)):
-        j=0
-        m=True
-        for i in inputString:
-            if pub[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    if(len(inputString)==len(pri)):
-        j=0
-        m=True
-        for i in inputString:
-            if pri[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    if(len(inputString)==len(prot)):
-        j=0
-        m=True
-        for i in inputString:
-            if prot[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    if(len(inputString)==len(ret)):
-        j=0
-        m=True
-        for i in inputString:
-            if ret[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    if(len(inputString)==len(vod)):
-        j=0
-        m=True
-        for i in inputString:
-            if vod[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m  
-    if(len(inputString)==len(vod)):
-        j=0
-        m=True
-        for i in inputString:
-            if vod[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    if(len(inputString)==len(stat)):
-        j=0
-        m=True
-        for i in inputString:
-            if stat[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    if(len(inputString)==len(man)):
-        j=0
-        m=True
-        for i in inputString:
-            if man[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    if(len(inputString)==len(nw)):
-        j=0
-        m=True
-        for i in inputString:
-            if nw[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    return False
-
-def dataType(inputString):
-    integ='int'
-    strin='String'
-    boole='boolean'
-    j=0
-    m=True
-    if(len(inputString)==len(integ)):
-        for i in inputString:
-            if integ[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    if(len(inputString)==len(strin)):
-        j=0
-        for i in inputString:
-            if strin[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    if(len(inputString)==len(boole)):
-        j=0
-        for i in inputString:
-            if boole[j]!=i:
-                m=False
-                break
-            j+=1
-        if m==True:
-            return m
-    return False   
-    
 def IndentifyTokens(inputString):
-    if symbols(inputString)==True:
-        return "symbol"
-    elif dataType(inputString)==True:
-        return "Type"
-    elif reservedWord(inputString)==True:
-        return "reserved_word"
-    elif binaryOperation(inputString)==True:
-        return "OP"
-    elif integerLiteral(inputString)==True:
-        return "integer"
-    else:
-        return ""
+    for i in reservedTokens:
+        m=False
+        if(len(inputString)==len(i)):
+            j=0
+            for c in inputString:
+                if i[j]!=c:
+                    m=False
+                    break
+                j+=1
+        if m==True:
+            return reservedTokens[i]
+    
+    return ""
     
 def Tokenization(code):
     codeLines=code.read().splitlines()
@@ -298,45 +102,47 @@ def Tokenization(code):
 
     
 
+def main(File):
+    code = open(File, "r")
+    Tokens=Tokenization(code)
+    size=len(Tokens)
 
-Tokens=Tokenization(code)
-size=len(Tokens)
-
-while(True):
-    for i in range(0,len(Tokens)):
-        x=identifiers([Tokens[i][0],Tokens[i][1]]) 
-        if x[0]==False and (Tokens[i][1]==""):
-            Tokens[i][1]='Invalid'
-            m=Tokens[i][0].split(Tokens[i][0][x[2]],1)
-            if(len(m[1])>0 and (str(x[1]).isdigit())==False):
-                symbol=Tokens[i][0][x[2]]
-                line=Tokens[i][2]
-                del Tokens[i] #delete the old token
-                Tokens.insert(i,[symbol,IndentifyTokens(symbol),line]) #add the splitting symbol
-                if(m[1]!=''):
-                    Tokens.insert(i+1,[m[1],"Identifier",line]) #add new token to the mix
-            elif((str(x[1]).isdigit())==True): #'''''''''fix this line'''''''''
-                if(len(m[1])>0 and (str(Tokens[i][0][x[2]]).isdigit())==False):
-                    symbol=Tokens[i][0][x[2]]
-                    line=Tokens[i][2]
-                    del Tokens[i] #delete the old token
-                    Tokens.insert(i,[x[1],"integer",line]) #add new token to the mix
-                    Tokens.insert(i+1,[symbol,'symbol',line]) #add the splitting symbol
-                    if(m[1]!=''):
-                        Tokens.insert(i+2,[m[1],IndentifyTokens(m[1]),line])
+    while(True):
+        for i in range(0,len(Tokens)):
+            x=identifiers([Tokens[i][0],Tokens[i][1]]) 
+            if x[0]==False and (Tokens[i][1]==""):
+                Tokens[i][1]='Invalid'
+                if 'Invalid' not in x[1]:
+                    m=Tokens[i][0].split(Tokens[i][0][x[2]],1)
+                    if(len(m[1])>0 and (str(x[1]).isdigit())==False):
+                        symbol=Tokens[i][0][x[2]]
+                        line=Tokens[i][2]
+                        del Tokens[i] #delete the old token
+                        Tokens.insert(i,[symbol,IndentifyTokens(symbol),line]) #add the splitting symbol
+                        if(m[1]!=''):
+                            Tokens.insert(i+1,[m[1],"Identifier",line]) #add new token to the mix
+                    elif((str(x[1]).isdigit())==True): #'''''''''fix this line'''''''''
+                        if(len(m[1])>0 and (str(Tokens[i][0][x[2]]).isdigit())==False):
+                            symbol=Tokens[i][0][x[2]]
+                            line=Tokens[i][2]
+                            del Tokens[i] #delete the old token
+                            Tokens.insert(i,[x[1],"integer",line]) #add new token to the mix
+                            Tokens.insert(i+1,[symbol,'symbol',line]) #add the splitting symbol
+                            if(m[1]!=''):
+                                Tokens.insert(i+2,[m[1],IndentifyTokens(m[1]),line])
                     
-        elif x[0]==False and (Tokens[i][1]=="Identifier"):
-            if IndentifyTokens(Tokens[i][0][0])=="symbol":
+            elif x[0]==False and (Tokens[i][1]=="Identifier"):
+                if IndentifyTokens(Tokens[i][0][0])=="symbol":
+                    m=Tokens[i][0].split(Tokens[i][0][x[2]],1)
+                    if(len(m[1])>0 and ~(str(Tokens[i][0][x[2]]).isdigit())):
+                        symbol=Tokens[i][0][x[2]]
+                        line=Tokens[i][2]
+                        del Tokens[i] #delete the old token
+                        Tokens.insert(i,[symbol,'symbol',line]) #add the splitting symbol
+                        Tokens.insert(i+1,[m[1],"Identifier",line]) #add new token to the mix
+            elif x[0]==False and str(x[1]).isdigit():
                 m=Tokens[i][0].split(Tokens[i][0][x[2]],1)
-                if(len(m[1])>0 and ~(str(Tokens[i][0][x[2]]).isdigit())):
-                    symbol=Tokens[i][0][x[2]]
-                    line=Tokens[i][2]
-                    del Tokens[i] #delete the old token
-                    Tokens.insert(i,[symbol,'symbol',line]) #add the splitting symbol
-                    Tokens.insert(i+1,[m[1],"Identifier",line]) #add new token to the mix
-        elif x[0]==False and str(x[1]).isdigit():
-            m=Tokens[i][0].split(Tokens[i][0][x[2]],1)
-            if((str(Tokens[i][0][x[2]]).isdigit())==False):
+                if((str(Tokens[i][0][x[2]]).isdigit())==False):
                     symbol=Tokens[i][0][x[2]]
                     line=Tokens[i][2]
                     del Tokens[i] #delete the old token
@@ -344,23 +150,25 @@ while(True):
                     Tokens.insert(i+1,[symbol,'symbol',line]) #add the splitting symbol
                     if(m[1]!=''):
                         Tokens.insert(i+2,[m[1],IndentifyTokens(m[1]),line])
-        else:
-            if x[2]==0 and Tokens[i][1]=="":
-                Tokens[i][1]='Identifier'
-            elif x[2]!=0 and (Tokens[i][1]=="" or Tokens[i][1]=="Identifier") :
-                m=Tokens[i][0].split(Tokens[i][0][x[2]],1) #take the splited part
-                symbol=Tokens[i][0][x[2]]
-                line=Tokens[i][2]
-                del Tokens[i] #delete the old token
-                Tokens.insert(i,[x[1],"Identifier",line]) #add new token to the mix
-                Tokens.insert(i+1,[symbol,IndentifyTokens(symbol),line]) #add the splitting symbol
-                if(m[1]!=''):
-                    Tokens.insert(i+2,[m[1],IndentifyTokens(m[1]),line])
             else:
-                continue
-    if(size!=len(Tokens)):
-        size=len(Tokens)
-    else:
-        break
+                if x[2]==0 and Tokens[i][1]=="":
+                    Tokens[i][1]='Identifier'
+                elif x[2]!=0 and (Tokens[i][1]=="" or Tokens[i][1]=="Identifier") :
+                    m=Tokens[i][0].split(Tokens[i][0][x[2]],1) #take the splited part
+                    symbol=Tokens[i][0][x[2]]
+                    line=Tokens[i][2]
+                    del Tokens[i] #delete the old token
+                    Tokens.insert(i,[x[1],"Identifier",line]) #add new token to the mix
+                    Tokens.insert(i+1,[symbol,IndentifyTokens(symbol),line]) #add the splitting symbol
+                    if(m[1]!=''):
+                        Tokens.insert(i+2,[m[1],IndentifyTokens(m[1]),line])
+                else:
+                    continue
+        if(size!=len(Tokens)):
+            size=len(Tokens)
+        else:
+            break
+    return Tokens
 #for token in Tokens:
     
+res=main('Code.txt')

@@ -13,6 +13,7 @@ class Fac {
 	if (num < 1)
 	num_aux = 1 ;
 	else
+	55k;
 	num_aux=num * (this.ComputeFac(num-1)) ;
      return num_aux ;
      }
