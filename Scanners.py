@@ -6,6 +6,8 @@ Created on Wed Mar 13 12:41:25 2019
 """
 import re
 
+from Tkinter import *
+from MultiList import *
 reservedTokens={
         ';':'symbol','.':'symbol','[':'symbol',']':'symbol','(':'symbol',')':'symbol',
         '{':'symbol','}':'symbol','=':'OP','*':'OP','-':'OP','+':'OP','<':'OP','>':'OP',
@@ -70,7 +72,7 @@ def IndentifyTokens(inputString):
     return ""
     
 def Tokenization(code):
-    codeLines=code.read().splitlines()
+    codeLines=code.splitlines()
     filteredTokens=[]
     comment=False
     line=1
@@ -114,10 +116,8 @@ def Tokenization(code):
             comment=False
     return Tokens
 
-    
-
-def main(File):
-    code = open(File, "r")
+def main():
+    code = codeText.get('1.0','end')
     Tokens=Tokenization(code)
     size=len(Tokens)
     
@@ -156,7 +156,29 @@ def main(File):
             size=len(Tokens)
         else:
             break
-    return Tokens
+    for i in range(0,len(Tokens)):
+        mlb.insert(END, (str(Tokens[i][2]), Tokens[i][0], Tokens[i][1]))
 #for token in Tokens:
-    
-res=main('Code.txt')
+
+root = Tk()
+codeFrame= Frame(root)
+
+resultsFrame=Frame(root)
+title=Label(resultsFrame,text='Tokens')
+tokensFrame1=Frame(resultsFrame)
+#tokensList1=Listbox(tokensFrame1,height=27,width=51)
+codeText = Text(codeFrame,width=80)
+codeText.configure(background='#4D4D4D',foreground='#FFFFFF')
+
+compileButton = Button(root,text='Compile Code',width=38,font=('Helvetica', '20'),command=main)
+compileButton.configure(background='#4D4D4D',foreground='#FFFFFF')
+mlb = MultiListbox(tokensFrame1, (('Line', 10,25), ('Token', 10,25), ('Identification', 10,25)))
+
+mlb.pack(fill='both', expand=1)
+resultsFrame.pack(side=RIGHT)
+title.pack(side=TOP)
+tokensFrame1.pack(side=RIGHT)       
+codeFrame.pack(fill=BOTH)
+codeText.pack(fill=BOTH)
+compileButton.pack(fill=BOTH,side=BOTTOM)
+root.mainloop()
