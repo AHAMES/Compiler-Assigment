@@ -5,33 +5,28 @@ Created on Wed Mar 13 12:41:25 2019
 @author: Ahmed
 """
 import re
-
 from Tkinter import *
 from MultiList import *
 reservedTokens={
-        ';':'symbol','.':'symbol','[':'symbol',']':'symbol','(':'symbol',')':'symbol',
-        '{':'symbol','}':'symbol','=':'OP','*':'OP','-':'OP','+':'OP','<':'OP','>':'OP',
-        '&&':'OP', '==':'OP','int':'Type','String':'Type','boolean':'Type','class':'reserved_word',
+        ';':'symbol','.':'symbol','[':'symbol',']':'symbol','(':'symbol',')':'symbol','{':'symbol',
+        '}':'symbol','"':'symbol',"'":'symbol','=':'OP','*':'OP','-':'OP','+':'OP','<':'OP','>':'OP',
+        '&&':'OP','&':'OP', '==':'OP','int':'Type','String':'Type','boolean':'Type','class':'reserved_word',
         'if':'reserved_word','else':'reserved_word','public':'reserved_word','private':'reserved_word',
         'protected':'reserved_word','return':'reserved_word','void':'reserved_word','main':'reserved_word',
-        'static':'reserved_word', 'new':'reserved_word','System.out.println':'reserved_word',
-        'while':'reserved_word','extends':'reserved_word','this':'reserved_word', 'false':'reserved_word',
-        'true':'reserved_word'
+        'static':'reserved_word', 'new':'reserved_word','System':'reserved_word','while':'reserved_word',
+        'extends':'reserved_word','this':'reserved_word', 'false':'reserved_word','true':'reserved_word'
 }
 def identifiers(inputString):
     newToken=""
     splitPoint=0
-    if inputString[0][0]=='S' and inputString[1]!='reserved_word':
-        for i in range(0,len(inputString[0])):
-            if inputString[0][i]=='.' or str(inputString[0][i]).isalpha()==True:
-                newToken+=inputString[0][i]
-            else:
-                splitPoint=i
-                if newToken=='System.out.println':
-                    return {'Type':"reserved_word_split",'newToken':newToken,'Split_Point':splitPoint}
-    newToken=""
-    splitPoint=0          
-    if IndentifyTokens(str(inputString[0][0]))=='symbol' and len(inputString[0])>1:
+    invalid=False
+    if IndentifyTokens(str(inputString[0][0]))=='OP' and len(inputString[0])>1:
+        if(len(inputString[0])>2):
+            return {'Type':"OP_split",'newToken':newToken,'Split_Point':splitPoint}
+        elif IndentifyTokens(str(inputString[1])) !='OP':
+            return{'Type':"OP",'newToken':inputString[0],'Split_Point':splitPoint}
+        return {'Type':"_split",'newToken':newToken,'Split_Point':splitPoint}
+    elif IndentifyTokens(str(inputString[0][0]))=='symbol' and len(inputString[0])>1:
         return {'Type':"_split",'newToken':newToken,'Split_Point':splitPoint}
     elif str(inputString[0][0]).isalpha() and (inputString[1]=='' or inputString[1]=='Identifier'):
         for i in range(0,len(inputString[0])):
@@ -46,10 +41,15 @@ def identifiers(inputString):
             if str(inputString[0][i]).isdigit():
                 newToken+=inputString[0][i]
             elif str(inputString[0][i]).isalpha():
-                newToken="Invalid" 
+                invalid=True
             else:
                 splitPoint=i
+                if invalid==True:
+                    return{'Type':"Invalid_split",'newToken':newToken,'Split_Point':splitPoint}
+                
                 return{'Type':"Integer_split",'newToken':newToken,'Split_Point':splitPoint}
+        if invalid==True:
+                    return{'Type':"Invalid",'newToken':newToken,'Split_Point':splitPoint}
         return{'Type':"Integer",'newToken':newToken,'Split_Point':0}
     else:
         return {'Type':inputString[1],'newToken':"",'Split_Point':0}       
@@ -68,7 +68,7 @@ def IndentifyTokens(inputString):
                     break
                 j+=1
         if m==True:
-            return reservedTokens[i]
+            return reservedTokens[i]   
     return ""
     
 def Tokenization(code):
@@ -124,7 +124,8 @@ def main():
     while(True):
         for i in range(0,len(Tokens)):
             identifierResult=identifiers([Tokens[i][0],Tokens[i][1]])
-            if 'Invalid' in identifierResult['newToken']:
+            print i
+            if 'Invalid' == identifierResult['Type']:
                 Tokens[i][1]='Invalid'
             elif 'split' not in identifierResult['Type']:
                 if IndentifyTokens(Tokens[i][0])!='':
@@ -134,10 +135,10 @@ def main():
             else:
                 line=Tokens[i][2]
                 symbol=Tokens[i][0][identifierResult['Split_Point']]
-                if len(Tokens[i][0])>1 and (symbol=='='):
+                if len(Tokens[i][0])>1 and (symbol=='=') and identifierResult['Split_Point']!=(len(Tokens[i][0])-1):
                     if Tokens[i][0][identifierResult['Split_Point']+1]=='=':
                         symbol+='='
-                if len(Tokens[i][0])>1 and(symbol=='&'):
+                if len(Tokens[i][0])>1 and(symbol=='&') and identifierResult['Split_Point']!=(len(Tokens[i][0])-1):
                     if Tokens[i][0][identifierResult['Split_Point']+1]=='&':
                         symbol+='&'
                 spliter=Tokens[i][0].split(symbol,1)
@@ -148,7 +149,7 @@ def main():
                 elif spliter[1]=='' and spliter[0]!='':
                     Tokens.insert(i,[spliter[0],identifierResult['Type'].replace("_split",""),line])
                     Tokens.insert(i+1,[symbol,'symbol',line])
-                else:
+                elif spliter[1]!='' and spliter[0]!='':
                     Tokens.insert(i,[spliter[0],identifierResult['Type'].replace("_split",""),line])
                     Tokens.insert(i+1,[symbol,'symbol',line])
                     Tokens.insert(i+2,[spliter[1],"",line])
@@ -156,6 +157,7 @@ def main():
             size=len(Tokens)
         else:
             break
+    mlb.delete(0,END)
     for i in range(0,len(Tokens)):
         mlb.insert(END, (str(Tokens[i][2]), Tokens[i][0], Tokens[i][1]))
 #for token in Tokens:
@@ -165,18 +167,18 @@ codeFrame= Frame(root)
 
 resultsFrame=Frame(root)
 title=Label(resultsFrame,text='Tokens')
+title.configure(background='#4D4D4D',foreground='#FFFFFF')
 tokensFrame1=Frame(resultsFrame)
 #tokensList1=Listbox(tokensFrame1,height=27,width=51)
-codeText = Text(codeFrame,width=80)
-codeText.configure(background='#4D4D4D',foreground='#FFFFFF')
+codeText = Text(codeFrame,width=100)
+codeText.configure(insertbackground='#FFFFFF',background='#4D4D4D',foreground='#FFFFFF')
 
 compileButton = Button(root,text='Compile Code',width=38,font=('Helvetica', '20'),command=main)
 compileButton.configure(background='#4D4D4D',foreground='#FFFFFF')
-mlb = MultiListbox(tokensFrame1, (('Line', 10,25), ('Token', 10,25), ('Identification', 10,25)))
-
+mlb = MultiListbox(tokensFrame1, (('Line', 10,25), ('Token', 15,25), ('Identification', 15,25)))
 mlb.pack(fill='both', expand=1)
 resultsFrame.pack(side=RIGHT)
-title.pack(side=TOP)
+title.pack(side=TOP,fill=X)
 tokensFrame1.pack(side=RIGHT)       
 codeFrame.pack(fill=BOTH)
 codeText.pack(fill=BOTH)

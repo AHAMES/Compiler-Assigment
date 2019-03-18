@@ -28,7 +28,7 @@ class MultiListbox(Frame):
 	sb = Scrollbar(frame, orient=VERTICAL, command=self._scroll)
 	sb.pack(expand=YES, fill=Y)
 	self.lists[0]['yscrollcommand']=sb.set
-
+    
     def _select(self, y):
 	row = self.lists[0].nearest(y)
 	self.selection_clear(0, END)

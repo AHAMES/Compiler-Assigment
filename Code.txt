@@ -1,4 +1,8 @@
+55k;
+&&x=10;
+
 class Factorial{
+
 
 public static void main(String[ ] a){
 System.out.println(new Fac().ComputeFac(10));
@@ -13,8 +17,27 @@ class Fac {
 	if (num < 1)
 	num_aux = 1 ;
 	else
-	55k;
+	
 	num_aux=num * (this.ComputeFac(num-1)) ;
      return num_aux ;
      }
 }
+
+
+int x=6
+int y =4
+int z= 6;
+int a = 6;
+if(a>y){
+System.out.println(z);}
+else {
+System.out.println(x);
+}
+if(a==z){ 
+int b[]= new int(5);
+while(true)
+{
+System.out.println(b[i]);
+}
+}
+
