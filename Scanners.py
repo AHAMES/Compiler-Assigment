@@ -9,8 +9,8 @@ from Tkinter import *
 from MultiList import *
 reservedTokens={
         ';':'symbol','.':'symbol','[':'symbol',']':'symbol','(':'symbol',')':'symbol','{':'symbol',
-        '}':'symbol','"':'symbol',"'":'symbol','=':'OP','*':'OP','-':'OP','+':'OP','<':'OP','>':'OP',
-        '&&':'OP','&':'OP', '==':'OP','int':'Type','String':'Type','boolean':'Type','class':'reserved_word',
+        '}':'symbol','"':'symbol',"'":'symbol','=':'OP','/':'OP','*':'OP','-':'OP','+':'OP','<':'OP','>':'OP',
+        '&&':'OP','&':'OP', '==':'OP', '!':'OP','int':'Type','String':'Type','boolean':'Type','class':'reserved_word',
         'if':'reserved_word','else':'reserved_word','public':'reserved_word','private':'reserved_word',
         'protected':'reserved_word','return':'reserved_word','void':'reserved_word','main':'reserved_word',
         'static':'reserved_word', 'new':'reserved_word','System':'reserved_word','while':'reserved_word',
@@ -20,7 +20,9 @@ def identifiers(inputString):
     newToken=""
     splitPoint=0
     invalid=False
-    if IndentifyTokens(str(inputString[0][0]))=='OP' and len(inputString[0])>1:
+    if (inputString[1]=='Comment'):
+        return {'Type':"Comment",'newToken':inputString[0],'Split_Point':0}
+    elif IndentifyTokens(str(inputString[0][0]))=='OP' and len(inputString[0])>1:
         if(len(inputString[0])>2):
             return {'Type':"OP_split",'newToken':newToken,'Split_Point':splitPoint}
         elif IndentifyTokens(str(inputString[1])) !='OP':
@@ -71,7 +73,8 @@ def IndentifyTokens(inputString):
             return reservedTokens[i]   
     return ""
     
-def Tokenization(code):
+def RemoveComments(code):
+    
     codeLines=code.splitlines()
     filteredTokens=[]
     comment=False
@@ -80,52 +83,63 @@ def Tokenization(code):
         line_tokens = re.split(' |\t',i)
         for j in range(0,len(line_tokens)):
             if ('//' in line_tokens[j]) :
-                if(line_tokens[j][0]!='/'):
+                if(line_tokens[j][0]!='/' and line_tokens[j][1]!='/' ):
                     
                     x=line_tokens[j].split('//',1)
-                    filteredTokens.append(['//'+x[1],"Comment",line])
+                    filteredTokens.append([x[0],IndentifyTokens(x[0]),line])
+                    filteredTokens.append(['//',"Comment",line])
                 else:
-                    filteredTokens.append([line_tokens[j],"Comment",line])
-                comment=True
+                    filteredTokens.append(['//',"Comment",line])
+                break
             elif (len(line_tokens)==1 and line_tokens[j]==''):    
                 break
             elif(comment==True):
                 filteredTokens.append([line_tokens[j],"Comment",line])
             elif line_tokens[j]!='':
                 filteredTokens.append([line_tokens[j],IndentifyTokens(line_tokens[j]),line])
-                
-                    
-        comment=False
         line+=1
     comment=False
     Tokens=[]
     for i in range(0,len(filteredTokens)):
-        if '/*' in filteredTokens[i][0]:
-            if(filteredTokens[i][0]!='/'):
-                x=filteredTokens[i][0].split('/*')
-                Tokens.append(['/*'+x[1],"Comment",filteredTokens[i][2]])
+        if comment==True:
+            continue
+        elif('/**/' in filteredTokens[i][0]):
+            if(filteredTokens[i][0][0]!='/' and filteredTokens[i][0][1]!='*' ):
+                x=filteredTokens[i][0].split('/**/',1)
+                if x[0]!='':
+                    Tokens.append([x[0],IndentifyTokens(x[0]),filteredTokens[i][2]])
+                Tokens.append(['/**/','Comment',filteredTokens[i][2]])
+                if x[1]!='':
+                    Tokens.append([x[1],IndentifyTokens(x[1]),filteredTokens[i][2]])
+        elif ('/*' in filteredTokens[i][0]):
+            if(filteredTokens[i][0][0]!='/' and filteredTokens[i][0][1]!='*' ):
+                x=filteredTokens[i][0].split('/*',1)
+                Tokens.append([x[0],IndentifyTokens(x[0]),filteredTokens[i][2]])
+                Tokens.append(['/*',"Comment",filteredTokens[i][2]])
             comment=True
-        elif comment==True:
-            Tokens.append([filteredTokens[i][0],"Comment",filteredTokens[i][2]])
-        if comment==False:
-            if(filteredTokens[i][1]!='Comment'):
-                Tokens.append([filteredTokens[i][0],filteredTokens[i][1],filteredTokens[i][2]])
-            else:
-                Tokens.append([filteredTokens[i][0],"Comment",filteredTokens[i][2]])
-        if '*/' in filteredTokens[i][0]:
+        elif('*/' in filteredTokens[i][0]):
+            if(filteredTokens[i][0][0]!='*' and filteredTokens[i][0][1]!='/' ):
+                x=filteredTokens[i][0].split('*/',1)
+                Tokens.append([x[0]+'*/',"Comment",filteredTokens[i][2]])
+                if x[1]!='':
+                    Tokens.append([x[1],IndentifyTokens(x[1]),filteredTokens[i][2]])
+        
             comment=False
+        else:
+            Tokens.append(filteredTokens[i])
     return Tokens
 
 def main():
     code = codeText.get('1.0','end')
-    Tokens=Tokenization(code)
+    Tokens=RemoveComments(code)
     size=len(Tokens)
-    
     while(True):
         for i in range(0,len(Tokens)):
             identifierResult=identifiers([Tokens[i][0],Tokens[i][1]])
             print i
-            if 'Invalid' == identifierResult['Type']:
+            if 'Comment'== Tokens[0][1]:
+                continue
+            elif 'Invalid' == identifierResult['Type']:
                 Tokens[i][1]='Invalid'
             elif 'split' not in identifierResult['Type']:
                 if IndentifyTokens(Tokens[i][0])!='':

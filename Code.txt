@@ -1,3 +1,6 @@
+if/**/) inty=y+1-234444(!x)
+int//int y/*hi bye */
+hi/Hi
 55k;
 &&x=10;
 
@@ -35,6 +38,11 @@ System.out.println(x);
 }
 if(a==z){ 
 int b[]= new int(5);
+String b[ ] = new int[5 ]
+String c[ ] = new int[ 6]
+
+String c[ ] = new int[ 6 ]
+
 while(true)
 {
 System.out.println(b[i]);
