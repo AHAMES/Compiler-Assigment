@@ -3,7 +3,7 @@ int//int y/*hi bye */
 hi/Hi
 55k;
 &&x=10;
-
+//*/
 class Factorial{
 
 

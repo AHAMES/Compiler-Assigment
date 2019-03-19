@@ -96,8 +96,12 @@ def Tokenise(code):
             continue
         line_tokens = re.split(' |\t',i)
         for j in line_tokens:
-            if (j=='//'):
+            if j=='':
+                continue
+            elif (j=='//'):
                 token=['//',number,'Comment',line]
+                tokens.append(token)
+                mlb.insert(END, (str(token[3]),str(token[1]), token[0], token[2]))
                 break
             elif j=='*/':
                 token=['*/',number,'Comment',line]
