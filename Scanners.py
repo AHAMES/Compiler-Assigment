@@ -8,18 +8,16 @@ import re
 from Tkinter import *
 from MultiList import *
 reservedTokens={
-        ';':'symbol','.':'symbol','[':'symbol',']':'symbol','(':'symbol',')':'symbol','{':'symbol',
+        ';':'symbol',',':'symbol','.':'symbol','[':'symbol',']':'symbol','(':'symbol',')':'symbol','{':'symbol',
         '}':'symbol','"':'symbol',"'":'symbol','=':'OP','*':'OP','-':'OP','+':'OP','<':'OP','>':'OP',
-        '&&':'OP', '==':'OP', '!':'OP','int':'Type','String':'Type','boolean':'Type','class':'reserved_word',
-        'if':'reserved_word','else':'reserved_word','public':'reserved_word','private':'reserved_word',
-        'protected':'reserved_word','return':'reserved_word','void':'reserved_word','main':'reserved_word',
+        '&&':'OP', '!':'OP','int':'Type','String':'Type','boolean':'Type','class':'reserved_word',
+        'if':'reserved_word','else':'reserved_word','public':'reserved_word',
+        'return':'reserved_word','void':'reserved_word','main':'reserved_word',
         'static':'reserved_word', 'new':'reserved_word','System':'reserved_word','while':'reserved_word',
         'extends':'reserved_word','this':'reserved_word', 'false':'reserved_word','true':'reserved_word'
 }
         
 def identifiers(inputString):
-    newToken=""
-    invalid=False
     if len(inputString)==0:
         return ""
     elif str(inputString[0]).isalpha()==False and str(inputString[0]).isdigit()==False or inputString[0]=='_':
@@ -27,33 +25,23 @@ def identifiers(inputString):
     elif (str(inputString[0]).isalpha()):
         for i in range(0,len(inputString)):
             if str(inputString[i]).isalpha() or str(inputString[i]).isdigit() or inputString[i]=='_':
-                newToken+=inputString[i]
+                continue
+            else:
+                return "Invalid"    
         return "Identifier"
     elif str(inputString[0]).isdigit():
         for i in range(0,len(inputString)):
             if str(inputString[i]).isdigit():
-                newToken+=inputString[i]
+                continue
             elif str(inputString[i]).isalpha() or inputString[i]=='_':
-                newToken+=inputString[i]
-                invalid=True   
-        if invalid==True:
-            return "Invalid"
-        else:       
-            return "Integer"
+                return "Invalid"
+              
+        return "Integer"
             
 def IndentifyTokens(inputString):
     
     for i in reservedTokens:
-        m=False
-        if(len(inputString)==len(i)):
-            j=0
-            m=True
-            for c in inputString:
-                if i[j]!=c:
-                    m=False
-                    break
-                j+=1
-        if m==True:
+        if(len(inputString)==len(i) and i in inputString):
             return reservedTokens[i]   
     ID=identifiers(inputString)
     if ID!="":
@@ -70,7 +58,9 @@ def addSpaces(codeLines):
             if ID=='symbol':
                 newString+=(" "+i[j]+" ")
             elif len(i)>1 and (ID=='OP' or i[j]=='/' or i[j]=='&'):
-                if (i[j] == i[j+1]):
+                if (j+1)==len(i):
+                    newString+=(" "+i[j]+" ")
+                elif ( i[j] == i[j+1]):
                     j+=1
                     newString+=(" "+i[j]+i[j]+" ")
                 elif ((i[j]=='*' and i[j+1]== '/') or (i[j+1]=='*' and i[j]== '/')):
@@ -123,15 +113,15 @@ def Tokenise(code):
         line+=1
         
     return tokens
-tokens=[]
-def main():
-    code = codeText.get('1.0','end')
-    global tokens
-    mlb.delete(0,END)
-    tokens=Tokenise(code)
-    
-#for token in Tokens:
 
+def main():
+    global tokens
+    code = codeText.get('1.0','end')
+    mlb.delete(0,END)
+    x=Tokenise(code)
+    tokens=x
+#for token in Tokens:
+tokens=[]
 root = Tk()
 codeFrame= Frame(root)
 
@@ -153,4 +143,5 @@ tokensFrame1.pack(side=RIGHT)
 codeFrame.pack(fill=BOTH)
 codeText.pack(fill=BOTH)
 compileButton.pack(fill=BOTH,side=BOTTOM)
+
 root.mainloop()
