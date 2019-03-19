@@ -16,47 +16,29 @@ reservedTokens={
         'static':'reserved_word', 'new':'reserved_word','System':'reserved_word','while':'reserved_word',
         'extends':'reserved_word','this':'reserved_word', 'false':'reserved_word','true':'reserved_word'
 }
+        
 def identifiers(inputString):
     newToken=""
-    splitPoint=0
     invalid=False
-    if (inputString[1]=='Comment'):
-        return {'Type':"Comment",'newToken':inputString[0],'Split_Point':0}
-    elif IndentifyTokens(str(inputString[0][0]))=='OP' and len(inputString[0])>1:
-        if(len(inputString[0])>2):
-            return {'Type':"OP_split",'newToken':newToken,'Split_Point':splitPoint}
-        elif IndentifyTokens(str(inputString[1])) !='OP':
-            return{'Type':"OP",'newToken':inputString[0],'Split_Point':splitPoint}
-        return {'Type':"_split",'newToken':newToken,'Split_Point':splitPoint}
-    elif IndentifyTokens(str(inputString[0][0]))=='symbol' and len(inputString[0])>1:
-        return {'Type':"_split",'newToken':newToken,'Split_Point':splitPoint}
-    elif str(inputString[0][0]).isalpha() and (inputString[1]=='' or inputString[1]=='Identifier'):
-        for i in range(0,len(inputString[0])):
-            if str(inputString[0][i]).isalpha() or str(inputString[0][i]).isdigit() or inputString[0][i]=='_':
-                newToken+=inputString[0][i]
-            else:
-                splitPoint=i
-                return {'Type':"Identifier_split",'newToken':newToken,'Split_Point':splitPoint}
-        return{'Type':"Identifier",'newToken':newToken,'Split_Point':0}
-    elif str(inputString[0][0]).isdigit() and str(inputString[1])!='Integer':
-        for i in range(0,len(inputString[0])):
-            if str(inputString[0][i]).isdigit():
-                newToken+=inputString[0][i]
-            elif str(inputString[0][i]).isalpha():
-                invalid=True
-            else:
-                splitPoint=i
-                if invalid==True:
-                    return{'Type':"Invalid_split",'newToken':newToken,'Split_Point':splitPoint}
-                
-                return{'Type':"Integer_split",'newToken':newToken,'Split_Point':splitPoint}
+    if len(inputString)==0:
+        return ""
+    elif (str(inputString[0]).isalpha()):
+        for i in range(0,len(inputString)):
+            if str(inputString[i]).isalpha() or str(inputString[i]).isdigit() or inputString[i]=='_':
+                newToken+=inputString[i]
+        return "Identifier"
+    elif str(inputString[0]).isdigit():
+        for i in range(0,len(inputString)):
+            if str(inputString[i]).isdigit():
+                newToken+=inputString[i]
+            elif str(inputString[i]).isalpha() or inputString[i]=='_':
+                newToken+=inputString[i]
+                invalid=True   
         if invalid==True:
-                    return{'Type':"Invalid",'newToken':newToken,'Split_Point':splitPoint}
-        return{'Type':"Integer",'newToken':newToken,'Split_Point':0}
-    else:
-        return {'Type':inputString[1],'newToken':"",'Split_Point':0}       
-
-
+            return "Invalid"
+        else:       
+            return "Integer"
+            
 def IndentifyTokens(inputString):
     
     for i in reservedTokens:
@@ -71,110 +53,77 @@ def IndentifyTokens(inputString):
                 j+=1
         if m==True:
             return reservedTokens[i]   
-    return ""
+    ID=identifiers(inputString)
+    if ID!="":
+       return ID
+    return ""        
+def addSpaces(codeLines):
+    newLines=[]
     
-def RemoveComments(code):
+    for i in codeLines:
+        newString=''
+        j=0
+        while (j!=len(i)):
+            ID=IndentifyTokens(i[j])
+            if ID=='symbol':
+                newString+=(" "+i[j]+" ")
+            elif ID=='OP':
+                if (i[j] == i[j+1]):
+                    j+=1
+                    newString+=(" "+i[j]+i[j]+" ")
+                elif ((i[j]=='*' and i[j+1]== '/') or (i[j+1]=='*' and i[j]== '/')):
+                    newString+=(" "+i[j]+i[j+1]+" ")
+                    j+=1
+                else:
+                    newString+=(" "+i[j]+" ")
+            else:
+                newString+=i[j]
+            j+=1
+        newLines.append(newString)  
+    return newLines
+def Tokenise(code):
     
     codeLines=code.splitlines()
-    filteredTokens=[]
+    codeLines=addSpaces(codeLines)
     comment=False
     line=1
+    number=0
+    token=[]
+    tokens=[]
     for i in codeLines:
-        line_tokens = re.split(' |\t',i)
-        for j in range(0,len(line_tokens)):
-            if ('//' in line_tokens[j]) :
-                if(line_tokens[j][0]!='/' and line_tokens[j][1]!='/' ):
-                    
-                    x=line_tokens[j].split('//',1)
-                    filteredTokens.append([x[0],IndentifyTokens(x[0]),line])
-                    filteredTokens.append(['//',"Comment",line])
-                else:
-                    filteredTokens.append(['//',"Comment",line])
-                break
-            elif (len(line_tokens)==1 and line_tokens[j]==''):    
-                break
-            elif(comment==True):
-                filteredTokens.append([line_tokens[j],"Comment",line])
-            elif line_tokens[j]!='':
-                filteredTokens.append([line_tokens[j],IndentifyTokens(line_tokens[j]),line])
-        line+=1
-    comment=False
-    Tokens=[]
-    for i in range(0,len(filteredTokens)):
-        if('*/' in filteredTokens[i][0]):
-            x=filteredTokens[i][0].split('*/',1)
-            if(filteredTokens[i][0][0]!='*' and filteredTokens[i][0][1]!='/' ):
-                
-                Tokens.append([x[0]+'*/',"Comment",filteredTokens[i][2]])
-                if x[1]!='':
-                    Tokens.append([x[1],IndentifyTokens(x[1]),filteredTokens[i][2]])
-            comment=False
-        elif comment==True:
+        if i=='':
+            line+=1
             continue
-        elif('/**/' in filteredTokens[i][0]):
-            if(filteredTokens[i][0][0]!='/' and filteredTokens[i][0][1]!='*' ):
-                x=filteredTokens[i][0].split('/**/',1)
-                if x[0]!='':
-                    Tokens.append([x[0],IndentifyTokens(x[0]),filteredTokens[i][2]])
-                Tokens.append(['/**/','Comment',filteredTokens[i][2]])
-                if x[1]!='':
-                    Tokens.append([x[1],IndentifyTokens(x[1]),filteredTokens[i][2]])
-        elif ('/*' in filteredTokens[i][0]):
-            if(filteredTokens[i][0][0]!='/' and filteredTokens[i][0][1]!='*' ):
-                x=filteredTokens[i][0].split('/*',1)
-                Tokens.append([x[0],IndentifyTokens(x[0]),filteredTokens[i][2]])
-                Tokens.append(['/*',"Comment",filteredTokens[i][2]])
-            comment=True
+        line_tokens = re.split(' |\t',i)
+        for j in line_tokens:
+            if (j=='//'):
+                token=['//',number,'Comment',line]
+                break
+            elif j=='*/':
+                token=['*/',number,'Comment',line]
+                comment=False
+            elif j=='/*':
+                comment=True
+                token=['/*',number,'Comment',line]
+            elif comment==True:
+                continue
+            else:
+                tokenID=IndentifyTokens(j)
+                token=[j,number,tokenID,line]
+            if (len(token[0])!=0):
+                tokens.append(token)
+                mlb.insert(END, (str(token[3]),str(token[1]), token[0], token[2]))
+                number+=1
+        line+=1
         
-        else:
-            Tokens.append(filteredTokens[i])
-    return Tokens
-
+    return tokens
+tokens=[]
 def main():
     code = codeText.get('1.0','end')
-    Tokens=RemoveComments(code)
-    size=len(Tokens)
-    while(True):
-        for i in range(0,len(Tokens)):
-            identifierResult=identifiers([Tokens[i][0],Tokens[i][1]])
-            print i
-            if 'Comment'== Tokens[0][1]:
-                continue
-            elif 'Invalid' == identifierResult['Type']:
-                Tokens[i][1]='Invalid'
-            elif 'split' not in identifierResult['Type']:
-                if IndentifyTokens(Tokens[i][0])!='':
-                    Tokens[i][1]=IndentifyTokens(Tokens[i][0])
-                else:
-                    Tokens[i][1]=identifierResult['Type']
-            else:
-                line=Tokens[i][2]
-                symbol=Tokens[i][0][identifierResult['Split_Point']]
-                if len(Tokens[i][0])>1 and (symbol=='=') and identifierResult['Split_Point']!=(len(Tokens[i][0])-1):
-                    if Tokens[i][0][identifierResult['Split_Point']+1]=='=':
-                        symbol+='='
-                if len(Tokens[i][0])>1 and(symbol=='&') and identifierResult['Split_Point']!=(len(Tokens[i][0])-1):
-                    if Tokens[i][0][identifierResult['Split_Point']+1]=='&':
-                        symbol+='&'
-                spliter=Tokens[i][0].split(symbol,1)
-                del Tokens[i]
-                if spliter[0]=='' and spliter[1]!='':
-                    Tokens.insert(i,[symbol,'symbol',line])
-                    Tokens.insert(i+1,[spliter[1],"",line])
-                elif spliter[1]=='' and spliter[0]!='':
-                    Tokens.insert(i,[spliter[0],identifierResult['Type'].replace("_split",""),line])
-                    Tokens.insert(i+1,[symbol,'symbol',line])
-                elif spliter[1]!='' and spliter[0]!='':
-                    Tokens.insert(i,[spliter[0],identifierResult['Type'].replace("_split",""),line])
-                    Tokens.insert(i+1,[symbol,'symbol',line])
-                    Tokens.insert(i+2,[spliter[1],"",line])
-        if(size!=len(Tokens)):
-            size=len(Tokens)
-        else:
-            break
+    global tokens
     mlb.delete(0,END)
-    for i in range(0,len(Tokens)):
-        mlb.insert(END, (str(Tokens[i][2]), Tokens[i][0], Tokens[i][1]))
+    tokens=Tokenise(code)
+    
 #for token in Tokens:
 
 root = Tk()
@@ -190,7 +139,7 @@ codeText.configure(insertbackground='#FFFFFF',background='#4D4D4D',foreground='#
 
 compileButton = Button(root,text='Compile Code',width=38,font=('Helvetica', '20'),command=main)
 compileButton.configure(background='#4D4D4D',foreground='#FFFFFF')
-mlb = MultiListbox(tokensFrame1, (('Line', 10,25), ('Token', 15,25), ('Identification', 15,25)))
+mlb = MultiListbox(tokensFrame1, (('Line', 10,25),('Number', 10,25), ('Token', 15,25), ('Identification', 15,25)))
 mlb.pack(fill='both', expand=1)
 resultsFrame.pack(side=RIGHT)
 title.pack(side=TOP,fill=X)
