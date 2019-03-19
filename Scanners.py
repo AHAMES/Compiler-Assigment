@@ -9,8 +9,8 @@ from Tkinter import *
 from MultiList import *
 reservedTokens={
         ';':'symbol','.':'symbol','[':'symbol',']':'symbol','(':'symbol',')':'symbol','{':'symbol',
-        '}':'symbol','"':'symbol',"'":'symbol','=':'OP','/':'OP','*':'OP','-':'OP','+':'OP','<':'OP','>':'OP',
-        '&&':'OP','&':'OP', '==':'OP', '!':'OP','int':'Type','String':'Type','boolean':'Type','class':'reserved_word',
+        '}':'symbol','"':'symbol',"'":'symbol','=':'OP','*':'OP','-':'OP','+':'OP','<':'OP','>':'OP',
+        '&&':'OP', '==':'OP', '!':'OP','int':'Type','String':'Type','boolean':'Type','class':'reserved_word',
         'if':'reserved_word','else':'reserved_word','public':'reserved_word','private':'reserved_word',
         'protected':'reserved_word','return':'reserved_word','void':'reserved_word','main':'reserved_word',
         'static':'reserved_word', 'new':'reserved_word','System':'reserved_word','while':'reserved_word',
@@ -22,6 +22,8 @@ def identifiers(inputString):
     invalid=False
     if len(inputString)==0:
         return ""
+    elif str(inputString[0]).isalpha()==False and str(inputString[0]).isdigit()==False or inputString[0]=='_':
+        return "Invalid"
     elif (str(inputString[0]).isalpha()):
         for i in range(0,len(inputString)):
             if str(inputString[i]).isalpha() or str(inputString[i]).isdigit() or inputString[i]=='_':
@@ -67,7 +69,7 @@ def addSpaces(codeLines):
             ID=IndentifyTokens(i[j])
             if ID=='symbol':
                 newString+=(" "+i[j]+" ")
-            elif ID=='OP':
+            elif len(i)>1 and (ID=='OP' or i[j]=='/' or i[j]=='&'):
                 if (i[j] == i[j+1]):
                     j+=1
                     newString+=(" "+i[j]+i[j]+" ")
