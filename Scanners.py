@@ -101,7 +101,15 @@ def RemoveComments(code):
     comment=False
     Tokens=[]
     for i in range(0,len(filteredTokens)):
-        if comment==True:
+        if('*/' in filteredTokens[i][0]):
+            x=filteredTokens[i][0].split('*/',1)
+            if(filteredTokens[i][0][0]!='*' and filteredTokens[i][0][1]!='/' ):
+                
+                Tokens.append([x[0]+'*/',"Comment",filteredTokens[i][2]])
+                if x[1]!='':
+                    Tokens.append([x[1],IndentifyTokens(x[1]),filteredTokens[i][2]])
+            comment=False
+        elif comment==True:
             continue
         elif('/**/' in filteredTokens[i][0]):
             if(filteredTokens[i][0][0]!='/' and filteredTokens[i][0][1]!='*' ):
@@ -117,14 +125,7 @@ def RemoveComments(code):
                 Tokens.append([x[0],IndentifyTokens(x[0]),filteredTokens[i][2]])
                 Tokens.append(['/*',"Comment",filteredTokens[i][2]])
             comment=True
-        elif('*/' in filteredTokens[i][0]):
-            if(filteredTokens[i][0][0]!='*' and filteredTokens[i][0][1]!='/' ):
-                x=filteredTokens[i][0].split('*/',1)
-                Tokens.append([x[0]+'*/',"Comment",filteredTokens[i][2]])
-                if x[1]!='':
-                    Tokens.append([x[1],IndentifyTokens(x[1]),filteredTokens[i][2]])
         
-            comment=False
         else:
             Tokens.append(filteredTokens[i])
     return Tokens
