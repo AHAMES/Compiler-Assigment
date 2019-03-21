@@ -90,6 +90,11 @@ def Tokenise(code):
         for j in line_tokens:
             if j=='':
                 continue
+            elif j=='*/':
+                token=['*/',number,'Comment',line]
+                comment=False
+            elif comment==True:
+                continue
             elif (j=='//'):
                 token=['//',number,'Comment',line]
                 tokens.append(token)
@@ -101,8 +106,7 @@ def Tokenise(code):
             elif j=='/*':
                 comment=True
                 token=['/*',number,'Comment',line]
-            elif comment==True:
-                continue
+            
             else:
                 tokenID=IndentifyTokens(j)
                 token=[j,number,tokenID,line]
