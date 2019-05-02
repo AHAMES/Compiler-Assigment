@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
 """
+Created on Sat Apr  6 12:45:43 2019
+
+@author: Ahmed
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Wed Mar 13 12:41:25 2019
 
 @author: Ahmed
 """
 import re
-from Tkinter import *
-from MultiList import *
+from PyQt5.QtWidgets import QApplication, QLabel, QTableWidget,QPushButton,QHBoxLayout,QVBoxLayout,QWidget,QTextEdit,QTableWidgetItem
+
+
 reservedTokens={
         ';':'symbol',',':'symbol','.':'symbol','[':'symbol',']':'symbol','(':'symbol',')':'symbol','{':'symbol',
         '}':'symbol','"':'symbol',"'":'symbol','=':'OP','*':'OP','-':'OP','+':'OP','<':'OP','>':'OP',
@@ -29,7 +37,7 @@ def identifiers(inputString):
                 continue
             else:
                 return "Invalid"    
-        return "Id"
+        return "Identifier"
     elif str(inputString[0]).isdigit():
         for i in range(0,len(inputString)):
             if str(inputString[i]).isdigit():
@@ -107,7 +115,11 @@ def Tokenise(code):
                 token=[j,number,tokenID,line]
             if (len(token[0])!=0):
                 tokens.append(token)
-                mlb.insert(END, (str(token[3]),str(token[1]), token[0], token[2]))
+                tokenTable.insertRow(number)
+                tokenTable.setItem(number , 0, QTableWidgetItem(str(token[3])))
+                tokenTable.setItem(number , 1, QTableWidgetItem(str(token[1])))
+                tokenTable.setItem(number , 2, QTableWidgetItem(token[0]))
+                tokenTable.setItem(number , 3, QTableWidgetItem(token[2]))
                 number+=1
         line+=1
         
@@ -115,32 +127,38 @@ def Tokenise(code):
 
 def main():
     global tokens
-    code = codeText.get('1.0','end')
-    mlb.delete(0,END)
+    tokenTable.clearContents()
+    count=tokenTable.rowCount()+1
+    for i in range(0,count):
+        tokenTable.removeRow(i)
+    code=text.toPlainText()
     x=Tokenise(code)
     tokens=x
 #for token in Tokens:
 tokens=[]
-root = Tk()
-codeFrame= Frame(root)
 
-resultsFrame=Frame(root)
-title=Label(resultsFrame,text='Tokens')
-title.configure(background='#4D4D4D',foreground='#FFFFFF')
-tokensFrame1=Frame(resultsFrame)
-#tokensList1=Listbox(tokensFrame1,height=27,width=51)
-codeText = Text(codeFrame,width=100)
-codeText.configure(insertbackground='#FFFFFF',background='#4D4D4D',foreground='#FFFFFF')
+app = QApplication([])
+Appwindow = QWidget()
+Appwindow.resize(1200,500)
+Compiler=QHBoxLayout()
 
-compileButton = Button(root,text='Compile Code',width=38,font=('Helvetica', '20'),command=main)
-compileButton.configure(background='#4D4D4D',foreground='#FFFFFF')
-mlb = MultiListbox(tokensFrame1, (('Line', 10,25),('Number', 10,25), ('Token', 15,25), ('Identification', 15,25)))
-mlb.pack(fill='both', expand=1)
-resultsFrame.pack(side=RIGHT)
-title.pack(side=TOP,fill=X)
-tokensFrame1.pack(side=RIGHT)       
-codeFrame.pack(fill=BOTH)
-codeText.pack(fill=BOTH)
-compileButton.pack(fill=BOTH,side=BOTTOM)
+TextEditor=QVBoxLayout()
+text=QTextEdit()
+compilerBTN=QPushButton("Compile Code")
+compilerBTN.clicked.connect(main)
+TextEditor.addWidget(text)
+TextEditor.addWidget(compilerBTN)
 
-root.mainloop()
+Result=QVBoxLayout()
+label=QLabel("Tokens")
+tokenTable=QTableWidget()
+tokenTable.setColumnCount(4)
+tokenTable.setHorizontalHeaderLabels(['Line','Number',"Token","ID"])
+Result.addWidget(label)
+Result.addWidget(tokenTable)
+
+Compiler.addLayout(TextEditor,2)
+Compiler.addLayout(Result,1)
+Appwindow.setLayout(Compiler)
+Appwindow.show()
+app.exec_()
